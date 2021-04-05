@@ -39,7 +39,9 @@ app.get("/contact", function(req, res){
 app.get("/compose", function(req, res){
   res.render("compose");
 });
-
+app.get("/weather", function(req, res){
+  res.render("weather");
+});
 app.post("/compose", function(req, res){
   const post = {
     title: req.body.postTitle,
@@ -68,6 +70,46 @@ app.get("/posts/:postName", function(req, res){
 
 });
 
+app.post("/", function(req, res) {
+    
+    // takes in the zip from the html form, display in // console. Takes in as string, ex. for zip
+
+        var cityIDe = Number(req.body.cityID);
+        console.log(req.body.cityID);
+    
+    //build up the URL for the JSON query, API Key is // secret and needs to be obtained by signup 
+        const units = "imperial";
+        const apiKey = "ad7dfe287a7e4fb5745ed6f4234cda79";
+        const url = "https://api.openweathermap.org/data/2.5/weather?q=" + cityIDe +  "&units=" + units + "&APPID=" + apiKey;
+    
+    // this gets the data from Open WeatherPI
+    https.get(url, function(response){
+        console.log(response.statusCode);
+        
+        // gets individual items from Open Weather API
+        response.on("data", function(data){
+            const weatherData = JSON.parse(data);
+            const temp = weatherData.main.temp;
+            const city = weatherData.name;
+            const windspeed = weatherData.wind.speed;
+            const weatherDescription = weatherData.weather[0].description;
+            const icon = weatherData.weather[0].icon;
+            const imageURL = "http://openweathermap.org/img/wn/" + icon + "@2x.png";
+            
+              storedWeather = {
+         "cityName": cityIDe,
+         "cityTemp": temp,
+         "cityWindspeed": windspeed,
+         "cityweatherDescription": weatherDescription,
+         "weatherIcon": icon,
+              }
+              
+
+
+        });
+        });
+    });
+})
 // need to write out an app.get function that open a route /weather Need an EJS view called weather.ejs that displays one text field to input city name
 //This EJS view will input a city name from user
 // Then need to write out an app.get function that will use the city name to query the Weather API to retrieve basic weather information - temperature, description and humidity
